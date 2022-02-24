@@ -28,9 +28,26 @@ app.get("/api/refreshToken", require("./controllers/refreshTokenController"));
 app.get("/api/users", require("./controllers/usersController"));
 app.get("/api/logout", require("./controllers/logoutController"));
 app.get("/api/getPosts", require("./controllers/postsController").getAllPosts);
+app.get(
+  "/api/getPostById",
+  require("./controllers/postsController").getPostById
+);
 app.post(
   "/api/createPost",
   require("./controllers/postsController").createNewPost
+);
+app.post(
+  "/api/updatePost",
+  require("./controllers/postsController").updatePost
+);
+app.post("/api/likePost", require("./controllers/postsController").likePost);
+app.post(
+  "/api/removeLike",
+  require("./controllers/postsController").removeLike
+);
+app.post(
+  "/api/deletePost",
+  require("./controllers/postsController").deletePost
 );
 
 const server = http.createServer(app);

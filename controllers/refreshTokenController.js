@@ -12,11 +12,11 @@ module.exports = async (req, res) => {
   if (!foundUser) return res.sendStatus(403);
   // evaluate jwt
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    if (err || foundUser.email !== decoded.username) return res.sendStatus(403);
+    if (err || foundUser.email !== decoded.username) return res.sendStatus(402);
     const accessToken = jwt.sign(
       { username: decoded.username },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "60s" }
+      { expiresIn: "360000s" }
     );
 
     res.json({

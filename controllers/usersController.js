@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
     accessToken,
     process.env.ACCESS_TOKEN_SECRET,
     async (err, decoded) => {
-      if (err) return res.sendStatus(403);
+      if (err) return res.sendStatus(402);
       const users = await User.find({}).select("_id name email verified roles");
       res.json(users);
     }

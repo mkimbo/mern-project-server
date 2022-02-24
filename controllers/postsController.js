@@ -20,11 +20,12 @@ const createNewPost = (req, res) => {
     accessToken,
     process.env.ACCESS_TOKEN_SECRET,
     async (err, decoded) => {
-      if (err) return res.sendStatus(403);
+      if (err) return res.sendStatus(402);
       try {
         const newPost = {
           author: decoded.username,
           content: req.body.content,
+          date: new Date().getTime(),
         };
         const savedPost = await Posts.create(newPost);
         await User.populate(savedPost, [
@@ -56,8 +57,8 @@ const updatePost = async (req, res) => {
     accessToken,
     process.env.ACCESS_TOKEN_SECRET,
     async (err, decoded) => {
-      if (err || decoded.username !== foundPost.author)
-        return res.sendStatus(403);
+      if (err) return res.sendStatus(402);
+      if (decoded.username !== foundPost.author) return res.sendStatus(403);
       try {
         const postData = {
           content: content,
@@ -84,6 +85,126 @@ const updatePost = async (req, res) => {
   );
 };
 
+const likePost = async (req, res) => {
+  const { post_id } = req.body;
+  if (!post_id)
+    return res.status(400).json({ error: "Provide ID of the post to like" });
+  const foundPost = await Posts.findOne({ _id: post_id });
+  if (!foundPost)
+    return res
+      .status(400)
+      .json({ error: "We could not find a post with the ID you provided" });
+  const accessToken = req.headers.authorization.split(" ")[1];
+  jwt.verify(
+    accessToken,
+    process.env.ACCESS_TOKEN_SECRET,
+    async (err, decoded) => {
+      if (err) return res.sendStatus(402);
+      try {
+        let foundLike;
+        foundPost.likes.forEach((element) => {
+          if (element.user_id === decoded.username) {
+            foundLike = element.user_id;
+          }
+        });
+        if (!foundLike) {
+          const likedPost = await Posts.findOneAndUpdate(
+            { _id: post_id },
+            {
+              $push: {
+                likes: [
+                  {
+                    user_id: decoded.username,
+                  },
+                ],
+              },
+            },
+            { new: true }
+          );
+          await User.populate(likedPost, [
+            {
+              path: "author",
+              select: "_id name email",
+              model: "User",
+            },
+          ]);
+          res.status(201).json(likedPost);
+        } else {
+          await User.populate(foundPost, [
+            {
+              path: "author",
+              select: "_id name email",
+              model: "User",
+            },
+          ]);
+          res.status(201).json(foundPost);
+        }
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+};
+
+const removeLike = async (req, res) => {
+  const { post_id } = req.body;
+  if (!post_id)
+    return res.status(400).json({ error: "Provide ID of the post to unlike" });
+  const foundPost = await Posts.findOne({ _id: post_id });
+  if (!foundPost)
+    return res
+      .status(400)
+      .json({ error: "We could not find a post with the ID you provided" });
+  const accessToken = req.headers.authorization.split(" ")[1];
+  jwt.verify(
+    accessToken,
+    process.env.ACCESS_TOKEN_SECRET,
+    async (err, decoded) => {
+      if (err) return res.sendStatus(402);
+      try {
+        let foundLike;
+        foundPost.likes.forEach((element) => {
+          if (element.user_id === decoded.username) {
+            foundLike = element.user_id;
+          }
+        });
+        if (foundLike) {
+          const unlikedPost = await Posts.findOneAndUpdate(
+            {
+              _id: post_id,
+            },
+            {
+              $pull: {
+                likes: { user_id: foundLike },
+              },
+            },
+            { new: true }
+          );
+          await User.populate(unlikedPost, [
+            {
+              path: "author",
+              select: "_id name email",
+              model: "User",
+            },
+          ]);
+          res.status(201).json(unlikedPost);
+        } else {
+          await User.populate(foundPost, [
+            {
+              path: "author",
+              select: "_id name email",
+              model: "User",
+            },
+          ]);
+          res.status(201).json(foundPost);
+        }
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+};
+
 const deletePost = async (req, res) => {
   const { post_id } = req.body;
   if (!post_id)
@@ -98,8 +219,8 @@ const deletePost = async (req, res) => {
     accessToken,
     process.env.ACCESS_TOKEN_SECRET,
     async (err, decoded) => {
-      if (err || decoded.username !== foundPost.author)
-        return res.sendStatus(403);
+      if (err) return res.sendStatus(402);
+      if (decoded.username !== foundPost.author) return res.sendStatus(403);
       try {
         await Posts.findByIdAndRemove({ _id: post_id });
         res.status(201).json({ success: "Post has been deleted successfully" });
@@ -110,8 +231,8 @@ const deletePost = async (req, res) => {
   );
 };
 
-const getPost = async (req, res) => {
-  const { post_id } = req.body;
+const getPostById = async (req, res) => {
+  const { post_id } = req.query;
   if (!post_id)
     return res.status(400).json({ error: "Provide ID of the post" });
   const foundPost = await Posts.findOne({ _id: post_id });
@@ -133,6 +254,8 @@ module.exports = {
   getAllPosts,
   createNewPost,
   updatePost,
+  likePost,
+  removeLike,
   deletePost,
-  getPost,
+  getPostById,
 };
