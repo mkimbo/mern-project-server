@@ -28,6 +28,7 @@ const createNewPost = (req, res) => {
           date: new Date().getTime(),
         };
         const savedPost = await Posts.create(newPost);
+        await User.updateOne({ _id: decoded.username }, { $inc: { posts: 1 } });
         await User.populate(savedPost, [
           {
             path: "author",
@@ -223,6 +224,10 @@ const deletePost = async (req, res) => {
       if (decoded.username !== foundPost.author) return res.sendStatus(403);
       try {
         await Posts.findByIdAndRemove({ _id: post_id });
+        await User.updateOne(
+          { _id: decoded.username },
+          { $inc: { posts: -1 } }
+        );
         res.status(201).json({ success: "Post has been deleted successfully" });
       } catch (err) {
         res.status(500).json({ error: err.message });

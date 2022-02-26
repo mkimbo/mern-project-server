@@ -25,7 +25,19 @@ mongoose.connect("mongodb://localhost:27017/project-mern");
 app.post("/api/login", require("./controllers/loginController"));
 app.post("/api/register", require("./controllers/registerController"));
 app.get("/api/refreshToken", require("./controllers/refreshTokenController"));
-app.get("/api/users", require("./controllers/usersController"));
+app.get("/api/users", require("./controllers/usersController").getAllUsers);
+app.get(
+  "/api/getUserById",
+  require("./controllers/usersController").getUserById
+);
+app.post(
+  "/api/followUser",
+  require("./controllers/usersController").followUser
+);
+app.post(
+  "/api/unFollowUser",
+  require("./controllers/usersController").unFollowUser
+);
 app.get("/api/logout", require("./controllers/logoutController"));
 app.get("/api/getPosts", require("./controllers/postsController").getAllPosts);
 app.get(

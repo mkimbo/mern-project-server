@@ -7,7 +7,10 @@ const User = new mongoose.Schema({
   password: { type: String, required: true },
   verified: { type: Boolean, default: false },
   refreshToken: { type: String },
+  posts: { type: Number, default: 0 },
   roles: [],
+  followers: [{ user_id: { type: String, ref: "User" } }],
+  following: [{ user_id: { type: String, ref: "User" } }],
 });
 
 const model = mongoose.model("User", User);
