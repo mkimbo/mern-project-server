@@ -20,7 +20,11 @@ app.use(express.json());
 //middleware for cookies
 app.use(cookieParser());
 
-mongoose.connect("mongodb://localhost:27017/project-mern");
+mongoose.connect(
+  "mongodb+srv://jack:project-mern-admin@cluster0.hffg7.mongodb.net/project-mern"
+);
+//mongoose.connect("mongodb://localhost:27017/project-mern");
+//mongodb+srv://<username>:<password>@cluster0.hffg7.mongodb.net/test
 
 app.post("/api/login", require("./controllers/loginController"));
 app.post("/api/register", require("./controllers/registerController"));
