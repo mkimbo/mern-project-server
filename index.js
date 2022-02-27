@@ -1,9 +1,7 @@
 const express = require("express");
 const app = express();
-const http = require("http");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const { Server } = require("socket.io");
 const mongoose = require("mongoose");
 const corsOptions = require("./config/corsOptions");
 const credentials = require("./config/credentials");
@@ -22,11 +20,8 @@ app.use(express.json());
 //middleware for cookies
 app.use(cookieParser());
 
-mongoose.connect(
-  "mongodb+srv://jack:project-mern-admin@cluster0.hffg7.mongodb.net/project-mern"
-);
-//mongoose.connect("mongodb://localhost:27017/project-mern");
-//mongodb+srv://<username>:<password>@cluster0.hffg7.mongodb.net/test
+mongoose.connect(process.env.MONGO_DB_URI);
+//mongodb+srv://<username>:<password>@cluster0.hffg7.mongodb.net/project-mern
 
 app.post("/api/login", require("./controllers/loginController"));
 app.post("/api/register", require("./controllers/registerController"));
@@ -67,32 +62,6 @@ app.post(
   "/api/deletePost",
   require("./controllers/postsController").deletePost
 );
-
-//const server = http.createServer(app);
-
-/* const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-  },
-});
-
-io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
-
-  socket.on("join_room", (data) => {
-    socket.join(data);
-    console.log(`User with ID: ${socket.id} joined room: ${data}`);
-  });
-
-  socket.on("send_message", (data) => {
-    socket.to(data.room).emit("receive_message", data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("User Disconnected", socket.id);
-  });
-}); */
 
 app.listen(PORT, () => {
   console.log("SERVER RUNNING");
