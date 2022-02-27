@@ -8,6 +8,8 @@ const mongoose = require("mongoose");
 const corsOptions = require("./config/corsOptions");
 const credentials = require("./config/credentials");
 
+const PORT = process.env.PORT || 80;
+
 //credentials middleware to allow fetching cookies from request
 app.use(credentials);
 
@@ -66,7 +68,7 @@ app.post(
   require("./controllers/postsController").deletePost
 );
 
-const server = http.createServer(app);
+//const server = http.createServer(app);
 
 /* const io = new Server(server, {
   cors: {
@@ -92,6 +94,6 @@ io.on("connection", (socket) => {
   });
 }); */
 
-server.listen(3001, () => {
+app.listen(PORT, () => {
   console.log("SERVER RUNNING");
 });
