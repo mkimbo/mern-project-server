@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const corsOptions = require("./config/corsOptions");
 const credentials = require("./config/credentials");
 
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 3001;
 
 //credentials middleware to allow fetching cookies from request
 app.use(credentials);
@@ -20,8 +20,9 @@ app.use(express.json());
 //middleware for cookies
 app.use(cookieParser());
 
-mongoose.connect(process.env.MONGO_DB_URI);
-//mongodb+srv://<username>:<password>@cluster0.hffg7.mongodb.net/project-mern
+const URI =
+  process.env.MONGO_DB_URI || "mongodb://localhost:27017/project-mern";
+mongoose.connect(URI);
 
 app.post("/api/login", require("./controllers/loginController"));
 app.post("/api/register", require("./controllers/registerController"));
@@ -64,5 +65,5 @@ app.post(
 );
 
 app.listen(PORT, () => {
-  console.log("SERVER RUNNING");
+  console.log(`SERVER RUNNING on port ${PORT}`);
 });
