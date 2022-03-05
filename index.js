@@ -7,7 +7,7 @@ const corsOptions = require("./config/corsOptions");
 const credentials = require("./config/credentials");
 
 const PORT = process.env.PORT || 3001;
-
+//credentials middleware to allow fetching cookies from request
 //credentials middleware to allow fetching cookies from request
 app.use(credentials);
 
